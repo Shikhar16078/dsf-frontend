@@ -1,5 +1,3 @@
-# Firebase Studio
+# Frontend for UCR Schedule Bulder
 
-This is a NextJS starter in Firebase Studio.
-
-To get started, take a look at src/app/page.tsx.
+This repository serves as frontend for our UCR schedule builder which is part of DS Fellowship programm 2025.

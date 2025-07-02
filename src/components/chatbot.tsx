@@ -1,18 +1,15 @@
 'use client';
 
-import { useAIState, useActions } from 'ai/rsc';
 import { Bot, Loader2, Send, User } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { getScheduleSuggestion } from '@/app/actions';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useSchedule } from '@/providers/schedule-provider';
-import type { ScheduleEvent } from '@/types';
 
 type Message = {
   id: string;
@@ -57,16 +54,19 @@ export function Chatbot() {
     setIsLoading(true);
 
     try {
-      const { schedule, error } = await getScheduleSuggestion(input);
-      if (error) throw new Error(error);
+      const response = await fetch('http://127.0.0.1:5000/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: input }),
+      });
+      const data = await response.json();
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: schedule,
+        content: data.reply,
       };
       setMessages(prev => [...prev, assistantMessage]);
-
     } catch (error) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -84,7 +84,7 @@ export function Chatbot() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bot />
-          SchedulAI Assistant
+          UCR Plan Builder
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden">
@@ -111,11 +111,18 @@ export function Chatbot() {
                   )}
                 >
                   <p className="whitespace-pre-wrap">{message.content}</p>
-                   {message.role === 'assistant' && !message.content.startsWith("Hello!") && !message.content.startsWith("Sorry") && (
-                     <Button size="sm" variant="secondary" className="mt-2" onClick={() => handleSuggestionToCalendar(message.content)}>
+                  {message.role === 'assistant' &&
+                    !message.content.startsWith("Hello!") &&
+                    !message.content.startsWith("Sorry") && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="mt-2"
+                        onClick={() => handleSuggestionToCalendar(message.content)}
+                      >
                         Add to Calendar
-                    </Button>
-                   )}
+                      </Button>
+                    )}
                 </div>
                 {message.role === 'user' && (
                   <Avatar className="h-8 w-8">
