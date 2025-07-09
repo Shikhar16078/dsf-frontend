@@ -1,4 +1,4 @@
-# **App Name**: SchedulAI
+# **App Name**: UCR Schedule Planner
 
 ## Core Features:
 

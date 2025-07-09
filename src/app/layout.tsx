@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'SchedulAI',
+  title: 'UCR Schedule Planner',
   description: 'An intelligent scheduling assistant to help you organize your week.',
 };
 

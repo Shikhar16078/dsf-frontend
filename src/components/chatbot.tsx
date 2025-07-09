@@ -54,24 +54,25 @@ export function Chatbot() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/chat', {
+      const response = await fetch('http://127.0.0.1:8000/agent/invoke', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ input: { text: input } }),
       });
+
       const data = await response.json();
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.reply,
+        content: data.output?.text || "⚠️ No response received from the scheduling agent.",
       };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: "Sorry, I couldn't generate a schedule. Please try again.",
+        content: "❌ Sorry, I couldn't reach the schedule assistant. Please try again.",
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -84,7 +85,7 @@ export function Chatbot() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bot />
-          UCR Plan Builder
+          UCR Schedule Planner
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden">
@@ -97,7 +98,7 @@ export function Chatbot() {
               >
                 {message.role === 'assistant' && (
                   <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary text-primary-foreground">
+                    <AvatarFallback className="bg-blue-600 text-white">
                       <Bot className="h-5 w-5" />
                     </AvatarFallback>
                   </Avatar>
@@ -113,7 +114,9 @@ export function Chatbot() {
                   <p className="whitespace-pre-wrap">{message.content}</p>
                   {message.role === 'assistant' &&
                     !message.content.startsWith("Hello!") &&
-                    !message.content.startsWith("Sorry") && (
+                    !message.content.startsWith("Sorry") &&
+                    !message.content.startsWith("❌") &&
+                    !message.content.startsWith("⚠️") && (
                       <Button
                         size="sm"
                         variant="secondary"
